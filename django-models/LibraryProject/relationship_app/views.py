@@ -30,7 +30,10 @@ def register_view(request):
         form = UserCreationForm()
     return render(request, 'register.html', {'form': form})
 
-def login_view(request):
+def home_view(request):
+    return render(request, 'home.html')
+
+"""def login_view(request):
     if request.method == 'POST':
         form = AuthenticationForm(data=request.POST)
         if form.is_valid():
@@ -45,4 +48,4 @@ def login_view(request):
 @login_required
 def logout_view(request):
     logout(request)
-    return redirect('login')  # Redirect to login page after logout
+    return redirect('login')  # Redirect to login page after logout"""
