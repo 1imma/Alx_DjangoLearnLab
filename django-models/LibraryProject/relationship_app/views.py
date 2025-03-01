@@ -54,7 +54,10 @@ def logout_view(request):
 
 # Helper function to check user role
 def is_admin(user):
-    return user.userprofile.role == 'Admin'
+    if user.is_authenticated and hasattr(user, 'userprofile'):
+        return user.userprofile.role == 'Admin'
+    return False
+
 
 def is_librarian(user):
     return user.userprofile.role == 'Librarian'
