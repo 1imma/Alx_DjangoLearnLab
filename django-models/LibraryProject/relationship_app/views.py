@@ -6,6 +6,8 @@ from django.views.generic.detail import DetailView
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.contrib.auth import login, logout
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import user_passes_test
+from django.http import HttpResponseForbidden
 
 
 
@@ -49,3 +51,28 @@ def home_view(request):
 def logout_view(request):
     logout(request)
     return redirect('login')  # Redirect to login page after logout"""
+
+# Helper function to check user role
+def is_admin(user):
+    return user.userprofile.role == 'Admin'
+
+def is_librarian(user):
+    return user.userprofile.role == 'Librarian'
+
+def is_member(user):
+    return user.userprofile.role == 'Member'
+
+# Admin View
+@user_passes_test(is_admin)
+def admin_view(request):
+    return render(request, 'admin_view.html')
+
+# Librarian View
+@user_passes_test(is_librarian)
+def librarian_view(request):
+    return render(request, 'librarian_view.html')
+
+# Member View
+@user_passes_test(is_member)
+def member_view(request):
+    return render(request, 'member_view.html')
