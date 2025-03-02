@@ -1,5 +1,7 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import permission_required
+from django.shortcuts import render
+from django.db.models import Q
 from .models import Book
 
 @permission_required('advanced_features_and_security.can_view', raise_exception=True)
@@ -31,3 +33,15 @@ def delete_book(request, book_id):
     book = get_object_or_404(Book, id=book_id)
     book.delete()
     return redirect('book_list')
+
+
+# advanced_features_and_security/views.py
+
+
+def search_books(request):
+    query = request.GET.get('q')
+    if query:
+        books = Book.objects.filter(Q(title__icontains=query) | Q(author__icontains=query))
+    else:
+        books = Book.objects.all()
+    return render(request, 'bookshelf/search_results.html', {'books': books})
