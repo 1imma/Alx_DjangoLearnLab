@@ -38,12 +38,7 @@ class CustomUser(AbstractUser):
     date_of_birth = models.DateField(null=True, blank=True)
     profile_photo = models.ImageField(upload_to='profile_photos/', null=True, blank=True)
 
-    class Post(models.Model):
-        author = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
-        title = models.CharField(max_length=200)
-        content = models.TextField()
+    objects = CustomUserManager()
 
-        objects = CustomUserManager()
-
-        def __str__(self):
-            return self.username
+    def __str__(self):
+        return self.username
