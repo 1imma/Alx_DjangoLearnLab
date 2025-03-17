@@ -52,6 +52,11 @@ MIDDLEWARE = [
 
 ROOT_URLCONF = 'django_blog.urls'
 
+# Add authentication URLs
+LOGIN_URL = 'login'
+LOGIN_REDIRECT_URL = 'profile'
+LOGOUT_REDIRECT_URL = 'home'
+
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
