@@ -2,12 +2,13 @@ from django.views.generic import ListView, DetailView, CreateView, UpdateView, D
 from django.urls import reverse_lazy
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from .models import Post, Comment
+from django.db.models import Q
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import login, logout
 from django.contrib.auth.decorators import login_required
 from .forms import RegistrationForm, ProfileForm
 from django.contrib.auth.forms import AuthenticationForm
-from .forms import CommentForm
+from .forms import CommentForm, PostForm
 
 
 
@@ -73,23 +74,21 @@ class PostDetailView(DetailView):
 # Create a new blog post
 class PostCreateView(LoginRequiredMixin, CreateView):
     model = Post
+    form_class = PostForm
     template_name = 'blog/post_form.html'
-    fields = ['title', 'content']
 
     def form_valid(self, form):
         form.instance.author = self.request.user
         return super().form_valid(form)
 
-# Update an existing blog post
 class PostUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
     model = Post
+    form_class = PostForm
     template_name = 'blog/post_form.html'
-    fields = ['title', 'content']
 
     def test_func(self):
         post = self.get_object()
         return self.request.user == post.author
-
 # Delete a blog post
 class PostDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
     model = Post
@@ -140,3 +139,16 @@ class CommentDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
 
     def get_success_url(self):
         return reverse_lazy('post-detail', kwargs={'pk': self.object.post.id})
+    
+
+    def search_posts(request):
+        query = request.GET.get('q')
+        if query:
+            posts = Post.objects.filter(
+                Q(title__icontains=query) |
+                Q(content__icontains=query) |
+                Q(tags__name__icontains=query)
+            ).distinct()
+        else:
+            posts = Post.objects.all()
+        return render(request, 'blog/search_results.html', {'posts': posts, 'query': query})
