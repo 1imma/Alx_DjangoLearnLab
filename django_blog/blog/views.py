@@ -9,9 +9,22 @@ from django.contrib.auth.decorators import login_required
 from .forms import RegistrationForm, ProfileForm
 from django.contrib.auth.forms import AuthenticationForm
 from .forms import CommentForm, PostForm
+from django.utils.text import slugify
+from django.db import models
 
+class Tag(models.Model):
+    name = models.CharField(max_length=50, unique=True)
+    slug = models.SlugField(unique=True, blank=True)
 
+    def save(self, *args, **kwargs):
+        if not self.slug:
+            self.slug = slugify(self.name)
+        super().save(*args, **kwargs)
 
+    def __str__(self):
+        return self.name
+    
+    
 def home(request):
     return render(request, 'blog/home.html')
 
@@ -152,3 +165,14 @@ class CommentDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
         else:
             posts = Post.objects.all()
         return render(request, 'blog/search_results.html', {'posts': posts, 'query': query})
+    
+
+class PostByTagListView(ListView):
+    model = Post
+    template_name = 'blog/posts_by_tag.html'
+    context_object_name = 'posts'
+
+    def get_queryset(self):
+        tag_slug = self.kwargs['tag_slug']
+        tag = Tag.objects.get(slug=tag_slug)
+        return Post.objects.filter(tags=tag)
