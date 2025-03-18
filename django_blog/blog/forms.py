@@ -41,7 +41,7 @@ class TagWidget(forms.TextInput):
         self.attrs.update({'class': 'tag-input'})
 
 class PostForm(forms.ModelForm):
-    tags = forms.CharField(widget=TagWidget(), required=False)
+    tags = forms.CharField(widgets=TagWidget(), required=False)
 
     class Meta:
         model = Post
